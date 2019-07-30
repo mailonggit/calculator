@@ -16,7 +16,7 @@
 //     }
 //   }
   checkOperand(String input){
-    if(input == '+' || input == '-' || input == '*' || input == '/' || input == '%' || input == '='){
+    if(input == '+' || input == '-' || input == 'X' || input == '/' || input == '%' || input == '='){
       return true;
     }
     return false;
