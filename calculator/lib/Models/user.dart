@@ -1,8 +1,19 @@
 class User{
-  double _no1, _no2, _result;
-  int _id;
+  int id;
+  String description, date;
 
-  User(this._no1, this._no2, this._result);
+  User({this.id,this.description, this.date});
+  //conver user to json
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'description': description,
+    'date': date,
+  };  
 
-
+  //extract json to user
+  factory User.fromMap(Map<String, dynamic> maps) => new User(
+    id: maps['id'],
+    description: maps['description'],
+    date: maps['date'],
+  );
 }

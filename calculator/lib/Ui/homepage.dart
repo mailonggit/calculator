@@ -1,7 +1,9 @@
-import 'package:calculator/checklegit.dart';
-import 'package:calculator/history.dart';
-import 'package:calculator/user.dart';
+import 'package:calculator/Bloc/checklegit.dart';
+import 'package:calculator/Models/user.dart';
+import 'package:calculator/Sqlite/database.dart';
 import 'package:flutter/material.dart';
+
+import 'history.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,7 @@ class HomePage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.history),
-            color: Colors.red,
+            color: Colors.white,
             splashColor: Colors.white,
             tooltip: 'See history',
             onPressed: (){
@@ -40,49 +42,49 @@ class _BodyPageState extends State<BodyPage> {
     '1','2','3','+',
     '','0','.','=',
   ];
-  String input = '0';
-  String no1, no2, result;
-  String temp = '', operand;
+  String result = '';
+  String no1, no2;
+  String  operand;
+  int count = 0;
   List<User> listUser;
   implementButton(String btn){
     setState(() {
      if(checkCommand(btn)){
        if(btn == 'AC'){
-         input = '0';
-         temp = '';
+         result = '0';
        }
-      //  else if(btn == 'x'){
-      //    int length = temp.length;
-      //    input = temp.substring(1, length - 1);
-      //    debugPrint(input);
-      //    temp = '';
-      //  }
      }
-
-     else if(checkOperand(btn)){
+     else if(checkOperand(btn)) {
        if(btn == '='){
-         //save 2nd number, calculate result and add to the string
-         no2 = temp;
-         temp = '';
-         input = calculate(no1, no2, operand).toString();
-         listUser.add(User(double.parse(no1), double.parse(no2), double.parse(input)));
+         //save 2nd number, calculate result and add to the string         
+         no2 = result;
+         result = calculate(no1, no2, operand).toString();//add to the result
+
+        //  //add script and time to a user
+          String script = '$no1 $operand $no2 = $result';//ex: a + b = c
+          DateTime now = DateTime.now();
+          String time = '${now.hour}:${now.minute}:${now.second} - ${now.day}/${now.month}/${now.year}';
+          User us = User(description: script ,date: time);
+          //add user to database
+          DBProvider.db.newUser(us);
        }
        else{
          //save 1st number to no1, reset the string and add save operand for calculate when user press '='
-         no1 = temp;
-         temp = '';
-         input = btn;
+         no1 = result;
          operand = btn;
+         result = btn;
        }       
      }
-
      else if(checkNumber(btn)){
-       //add number to temp and update input 
-       temp += btn;
-       input = temp;
+       //add number to temp and update input
+       result = '';
+       result += btn;
      }     
     });
   }
+  final width = 70.0;
+  final height = 70.0;
+  final fontSize = 30.0;
   @override
   Widget build(BuildContext context) { 
     return ListView.builder(
@@ -91,73 +93,86 @@ class _BodyPageState extends State<BodyPage> {
         if(index == 0){
           //display result
           return Container(
-            height: 208.0,
+            height: height * 3,
             alignment: Alignment.bottomRight,
-            child: Text(input, style: TextStyle(fontSize: 30.0),),
+            child: Text(result, style: TextStyle(fontSize: fontSize),),
+            decoration: BoxDecoration(
+              border: Border.all(width: 2.0),
+            ),
           );
         }
         //index - 1 to skill the row of result
         int i = index - 1;
+        int i1 = 4 * i, i2 = 4 * i + 1, i3 = 4 * i + 2, i4 = 4 * i + 3;
+
         return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
         Expanded(        
           child: Container(
-            width: 70.0,
-            height: 70.0,
+            width: width,
+            height: height,
             child: RaisedButton(
               color: Colors.white,
               splashColor: Colors.red,
-              child: Text(listButton[4 * i], style: TextStyle(fontSize: 30.0),),
+              child: Text(listButton[i1], style: TextStyle(fontSize: fontSize),),
               onPressed: (){
-                 debugPrint('${listButton[4 * i]}');
-                implementButton(listButton[4 * i]);
+                implementButton(listButton[i1]);
               },
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(width: 2.0),
             ),
           ),
         ),
         Expanded(        
           child: Container(
-            width: 70.0,
-            height: 70.0,
+            width: width,
+            height: height,
             child: RaisedButton(
               color: Colors.white,
               splashColor: Colors.red,
-              child: Text(listButton[4 * i + 1], style: TextStyle(fontSize: 30.0),),
+              child: Text(listButton[i2], style: TextStyle(fontSize: fontSize),),
               onPressed: (){
-                 debugPrint('${listButton[4 * i + 1]}');
-                implementButton(listButton[4 * i + 1]);
-              },
+                implementButton(listButton[i2]);
+              },              
+            ),
+             decoration: BoxDecoration(
+              border: Border.all(width: 2.0),
             ),
           ),
         ),
         Expanded(
           child: Container(
-            width: 70.0,
-            height: 70.0,
+            width: width,
+            height: height,
             child: RaisedButton(
               color: Colors.white,
               splashColor: Colors.red,
-              child: Text(listButton[4 * i + 2], style: TextStyle(fontSize: 30.0),),
+              child: Text(listButton[i3], style: TextStyle(fontSize: fontSize),),
               onPressed: (){
-                debugPrint('${listButton[4 * i + 2]}');
-               implementButton(listButton[4 * i + 2]);
+               implementButton(listButton[i3]);
               },
+            ),
+             decoration: BoxDecoration(
+              border: Border.all(width: 2.0),
             ),
           ),
         ),
         Expanded(
           child: Container(
-            width: 70.0,
-            height: 70.0,
+            width: width,
+            height: height,
             child: RaisedButton(
               color: Colors.white,
               splashColor: Colors.red,
-              child: Text(listButton[4 * i + 3], style: TextStyle(fontSize: 30.0),),
+              child: Text(listButton[i4], style: TextStyle(fontSize: fontSize),),
               onPressed: (){
-                debugPrint('${listButton[4 * i + 3]}');
-                implementButton(listButton[4 * i + 3] );
+                implementButton(listButton[i4]);
               },
+            ),
+             decoration: BoxDecoration(
+              border: Border.all(width: 2.0),
             ),
           ),
         ),
