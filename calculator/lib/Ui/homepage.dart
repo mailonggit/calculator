@@ -1,4 +1,5 @@
 import 'package:calculator/Bloc/checklegit.dart';
+import 'package:calculator/Bloc/userbloc.dart';
 import 'package:calculator/Models/user.dart';
 import 'package:calculator/Sqlite/database.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class BodyPage extends StatefulWidget {
 }
 
 class _BodyPageState extends State<BodyPage> {
+  final bloc = UserBloc();
   List<String> listButton = [
     'AC','Del','%','/',
     '7','8','9','X',
@@ -42,7 +44,7 @@ class _BodyPageState extends State<BodyPage> {
     '1','2','3','+',
     '','0','.','=',
   ];
-  String result = '';
+  String result = '0', temp = '';
   String no1, no2;
   String  operand;
   int count = 0;
@@ -57,28 +59,30 @@ class _BodyPageState extends State<BodyPage> {
      else if(checkOperand(btn)) {
        if(btn == '='){
          //save 2nd number, calculate result and add to the string         
-         no2 = result;
+         no2 = temp;
          result = calculate(no1, no2, operand).toString();//add to the result
-
+         temp = '';
         //  //add script and time to a user
           String script = '$no1 $operand $no2 = $result';//ex: a + b = c
           DateTime now = DateTime.now();
           String time = '${now.hour}:${now.minute}:${now.second} - ${now.day}/${now.month}/${now.year}';
           User us = User(description: script ,date: time);
           //add user to database
-          DBProvider.db.newUser(us);
+          bloc.addUser(us);
+          //DBProvider.db.newUser(us);
        }
        else{
          //save 1st number to no1, reset the string and add save operand for calculate when user press '='
-         no1 = result;
+         no1 = temp;
          operand = btn;
          result = btn;
+         temp = '';
        }       
      }
      else if(checkNumber(btn)){
        //add number to temp and update input
-       result = '';
-       result += btn;
+       temp += btn;
+       result = temp;
      }     
     });
   }
@@ -86,8 +90,16 @@ class _BodyPageState extends State<BodyPage> {
   final height = 70.0;
   final fontSize = 30.0;
   @override
+  void initState() {
+    super.initState();
+    //bloc.dispose();
+  }
+  @override
   Widget build(BuildContext context) { 
-    return ListView.builder(
+    return StreamBuilder(
+      stream: bloc.listUser,
+      builder: (context, snapshot){
+        return  ListView.builder(
       itemCount: 6,
       itemBuilder: (BuildContext context, int index){
         if(index == 0){
@@ -151,6 +163,7 @@ class _BodyPageState extends State<BodyPage> {
               splashColor: Colors.red,
               child: Text(listButton[i3], style: TextStyle(fontSize: fontSize),),
               onPressed: (){
+                debugPrint(listButton[i3]);
                implementButton(listButton[i3]);
               },
             ),
@@ -180,5 +193,8 @@ class _BodyPageState extends State<BodyPage> {
     );
       },
     );
+      },
+    );
+   
   }
 }

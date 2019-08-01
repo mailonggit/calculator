@@ -24,7 +24,7 @@ class DBProvider{
   initDB() async{
     
     Directory documentDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentDirectory.path + 'calculator8.db');
+    String path = join(documentDirectory.path + 'calculator9.db');
     return await openDatabase(
       path,
       version: 1,
@@ -67,7 +67,7 @@ class DBProvider{
     var result = await db.query('User');
 
     List<User> list = result.isNotEmpty? result.map((element) => User.fromMap(element)).toList() : [];
-    debugPrint('Length: ${list.length}');
+    
     return list;
   }
   //update
@@ -83,10 +83,13 @@ class DBProvider{
   deleteUser(int id) async{
     final db = await database;
 
-    db.delete('User', where: 'id: ?', whereArgs: [id]);
+    db.delete('User', where: 'id = ?', whereArgs: [id]);
   }
   deleteAll() async{
+    
     final db = await database;
-    db.rawDelete('Delete * from Client');
+    db.rawDelete("DELETE FROM User");
+    
+  
   }
 }

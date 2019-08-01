@@ -1,30 +1,24 @@
-// double calculateResult(String operand){
-//     if(operand == '+'){
-//       return _no1 + _no2;
-//     }
-//     else if(operand == '-'){
-//       return _no1 - _no2;
-//     }
-//     else if(operand == 'X'){
-//       return _no1 * _no2;
-//     }
-//     else if(operand == '/'){
-//       return _no1 / _no2;
-//     }
-//     else if(operand == '%'){
-//       return _no1 % _no2;
-//     }
-//   }
-  checkOperand(String input){
+  import 'package:flutter/rendering.dart';
+
+checkOperand(String input){
     if(input == '+' || input == '-' || input == 'X' || input == '/' || input == '%' || input == '='){
       return true;
     }
     return false;
   }
+  int count = 0;
   checkNumber(String input){
-    if(double.parse(input) > 1 || double.parse(input) < 9){
+    if(input == '.'){      
+      count++;
+      debugPrint('count: $count');
+    }
+    if(count > 1){
+      return false;
+    }
+    if(double.parse(input) > 1 || double.parse(input) < 9 || input == '.'){
       return true;
     }
+    
     return false;
   }
   checkCommand(String input){
